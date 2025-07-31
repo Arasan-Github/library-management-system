@@ -1,9 +1,9 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-
 const app = express();
-const port = 5000;
+const PORT = 3000;
 
+// Sample Book Data
 let books = [
     {
         bookName: "Rudest Book Ever",
@@ -21,43 +21,60 @@ let books = [
     }
 ];
 
-//Middleware
+// Middleware
 app.set('view engine', 'ejs');
-app.use(bodyParser.json())
-app.use(bodyParser.urlencoded({extended:true}));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
+// Home Route - Display Books
+app.get("/", (req, res) => {
+    res.render("home", { data: books });
+});
 
-app.get('/',(req, res)=>{
-    res.render("home", {data:books})
-})
+// Add Book Route
+app.post("/", (req, res) => {
+    const newBook = {
+        bookName: req.body.bookName,
+        bookAuthor: req.body.bookAuthor,
+        bookPages: req.body.bookPages,
+        bookPrice: req.body.bookPrice,
+        bookState: "Available"
+    };
 
-//issue book route
-app.post("/issue",(req,res)=>{
+    books.push(newBook);
+    res.render("home", { data: books });
+});
+
+// Issue Book Route
+app.post("/issue", (req, res) => {
     const requestedBookName = req.body.bookName;
     books.forEach(book => {
-        if(book.bookName === requestedBookName){
+        if (book.bookName === requestedBookName) {
             book.bookState = "Issued";
         }
     });
-    res.render("home", {data: books})
+    res.render("home", { data: books });
 });
 
-app.post("/return",(req, res)=>{
+// Return Book Route
+app.post("/return", (req, res) => {
     const requestedBookName = req.body.bookName;
-    books.forEach(book=>{
-        if(book.bookName === requestedBookName){
-            book.bookState = "Available"
+    books.forEach(book => {
+        if (book.bookName === requestedBookName) {
+            book.bookState = "Available";
         }
-    })
-    res.render("home",{data:books})
-})
+    });
+    res.render("home", { data: books });
+});
 
-app.post("/delete",(req, res)=>{
+// Delete Book Route
+app.post("/delete", (req, res) => {
     const requestedBookName = req.body.bookName;
     books = books.filter(book => book.bookName !== requestedBookName);
-    res.render("home",{data: books})
-})
+    res.render("home", { data: books });
+});
 
-app.listen(port,()=>{
-    console.log(`The server is listening on port: ${port}`)
-})
+// Start Server
+app.listen(PORT, () => {
+    console.log(`App is running on port ${PORT}`);
+});
